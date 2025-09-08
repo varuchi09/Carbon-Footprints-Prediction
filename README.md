@@ -1,1 +1,1 @@
-Week 1 task completed till splitting of the dataset
+This is AIML project for Green Skills under sustainable energy and efficiency.
