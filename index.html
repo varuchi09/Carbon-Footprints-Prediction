@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CarbonLens — Industrial CO₂ Predictor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#0e1117;
+  --ink2:#1c2230;
+  --ink3:#2a3348;
+  --steel:#3d4f6b;
+  --muted:#6b7fa3;
+  --soft:#9aadc8;
+  --ghost:#c8d4e8;
+  --fog:#e8edf5;
+  --white:#f5f7fc;
+  --pure:#ffffff;
+  --green:#4caf7d;
+  --green-d:#2d7a53;
+  --green-bg:#e8f5ee;
+  --blue:#4a8fa8;
+  --blue-bg:#dbeef6;
+  --amber:#d4900a;
+  --amber-bg:#fdf0d5;
+  --coral:#c85a2a;
+  --coral-bg:#fde8df;
+  --red:#a02020;
+  --red-bg:#fde0d8;
+  --accent:#5b7fea;
+  --r:14px;
+  --rs:8px;
+}
+
+body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--ink);min-height:100vh;line-height:1.6}
+
+/* ═══ HEADER ═══ */
+header{
+  background:var(--ink);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 2rem;height:62px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  position:sticky;top:0;z-index:200;
+}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-mark{
+  width:34px;height:34px;border-radius:8px;
+  background:linear-gradient(135deg,var(--green),#2ecc71);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;
+}
+.logo-name{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;color:#fff;letter-spacing:-0.02em}
+.logo-name span{color:var(--green)}
+.header-right{display:flex;align-items:center;gap:12px}
+.header-pill{
+  font-size:11px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;
+  padding:4px 12px;border-radius:20px;
+  background:rgba(76,175,125,0.12);color:var(--green);
+  border:1px solid rgba(76,175,125,0.25);
+}
+.model-badge{
+  font-size:11px;color:var(--soft);
+  background:rgba(255,255,255,0.06);
+  padding:4px 12px;border-radius:20px;
+  border:1px solid rgba(255,255,255,0.08);
+}
+
+/* ═══ HERO ═══ */
+.hero{
+  background:var(--ink);
+  padding:3.5rem 2rem 6rem;
+  position:relative;overflow:hidden;
+}
+.hero::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;
+  height:64px;background:var(--white);
+  clip-path:ellipse(60% 100% at 50% 100%);
+}
+.hero-grid{
+  max-width:1060px;margin:0 auto;
+  display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;
+}
+@media(max-width:800px){.hero-grid{grid-template-columns:1fr}}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.1em;
+  color:var(--green);background:rgba(76,175,125,0.1);
+  border:1px solid rgba(76,175,125,0.2);
+  padding:5px 14px;border-radius:20px;margin-bottom:1.25rem;
+}
+.hero h1{
+  font-family:'Syne',sans-serif;font-size:clamp(2rem,4.5vw,3rem);
+  font-weight:800;color:#fff;line-height:1.1;letter-spacing:-0.03em;
+  margin-bottom:1rem;
+}
+.hero h1 .hl{color:var(--green)}
+.hero-desc{color:var(--soft);font-size:1rem;line-height:1.7;margin-bottom:2rem;max-width:440px}
+.hero-stats{display:flex;gap:2rem;flex-wrap:wrap}
+.h-stat{border-left:2px solid rgba(76,175,125,0.3);padding-left:14px}
+.h-stat-n{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;color:#fff}
+.h-stat-l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:1px}
+
+/* Hero right: mini chart preview */
+.hero-visual{
+  display:flex;flex-direction:column;gap:10px;opacity:0.85;
+}
+.hv-bar{display:flex;align-items:center;gap:10px}
+.hv-label{font-size:12px;color:var(--soft);width:90px;text-align:right;flex-shrink:0}
+.hv-track{flex:1;background:rgba(255,255,255,0.06);border-radius:4px;height:8px;overflow:hidden}
+.hv-fill{height:100%;border-radius:4px;background:var(--green);transition:width 1s ease}
+.hv-val{font-size:12px;color:var(--soft);width:50px;font-weight:500}
+.hv-title{font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:6px;text-align:right}
+
+/* ═══ MAIN ═══ */
+.main{max-width:1060px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
+.layout{display:grid;grid-template-columns:1fr 400px;gap:2rem;align-items:start}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+
+/* ═══ SECTION HEADING ═══ */
+.sec-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent);margin-bottom:4px}
+.sec-title{font-family:'Syne',sans-serif;font-size:1.55rem;font-weight:700;color:var(--ink);letter-spacing:-0.02em;margin-bottom:1.5rem}
+
+/* ═══ CARDS ═══ */
+.card{
+  background:var(--pure);border:1px solid var(--fog);
+  border-radius:var(--r);padding:1.5rem;
+  margin-bottom:1.25rem;
+}
+.card-head{
+  display:flex;align-items:center;gap:10px;
+  padding-bottom:1.1rem;margin-bottom:1.25rem;
+  border-bottom:1px solid var(--fog);
+}
+.c-icon{
+  width:38px;height:38px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+}
+.ci-green{background:#e8f5ee} .ci-blue{background:#dbeef6}
+.ci-amber{background:#fdf0d5} .ci-coral{background:#fde8df}
+
+.c-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:600;color:var(--ink)}
+.c-sub{font-size:12px;color:var(--muted);margin-top:1px}
+
+/* ═══ FORM FIELDS ═══ */
+.field{margin-bottom:1rem}
+.field:last-child{margin-bottom:0}
+label{display:block;font-size:13px;font-weight:500;color:var(--steel);margin-bottom:6px}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+input[type=number],select,input[type=range]{
+  width:100%;padding:10px 14px;
+  border:1.5px solid var(--fog);border-radius:var(--rs);
+  font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);
+  background:var(--white);
+  transition:border-color .2s,box-shadow .2s;
+  appearance:none;-webkit-appearance:none;
+}
+input[type=number]:focus,select:focus{
+  outline:none;border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(91,127,234,0.1);
+}
+select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7fa3' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;
+  padding-right:36px;cursor:pointer;
+}
+
+/* range slider */
+.slider-wrap{display:flex;align-items:center;gap:12px}
+.slider-wrap input[type=range]{
+  padding:0;height:4px;border:none;background:var(--fog);
+  border-radius:4px;cursor:pointer;
+  accent-color:var(--accent);
+}
+.slider-val{
+  font-family:'Syne',sans-serif;font-size:14px;font-weight:600;
+  color:var(--accent);min-width:36px;text-align:right;
+}
+
+/* fuel selector pills */
+.fuel-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fuel-pill input[type=radio]{display:none}
+.fuel-pill label{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 14px;border-radius:var(--rs);
+  border:1.5px solid var(--fog);background:var(--white);
+  cursor:pointer;font-size:13px;color:var(--steel);font-weight:400;
+  transition:all .18s;
+}
+.fuel-pill label .fuel-dot{
+  width:10px;height:10px;border-radius:50%;flex-shrink:0;
+}
+.fuel-pill input[type=radio]:checked + label{
+  border-color:var(--accent);background:#f0f4ff;color:var(--ink);font-weight:500;
+}
+.fp-coal    .fuel-dot{background:#6b5b45}
+.fp-diesel  .fuel-dot{background:#c85a2a}
+.fp-gas     .fuel-dot{background:#4a8fa8}
+.fp-renew   .fuel-dot{background:#4caf7d}
+
+/* ═══ SUBMIT BUTTON ═══ */
+.btn-submit{
+  width:100%;padding:15px;margin-top:0.25rem;
+  background:var(--ink);color:#fff;border:none;border-radius:var(--r);
+  font-family:'Syne',sans-serif;font-size:15px;font-weight:600;letter-spacing:-0.01em;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:background .2s,transform .15s;
+}
+.btn-submit:hover{background:var(--ink2);transform:translateY(-1px)}
+.btn-submit:active{transform:translateY(0)}
+.btn-submit .arrow{font-size:18px;transition:transform .2s}
+.btn-submit:hover .arrow{transform:translateX(3px)}
+
+.btn-submit.loading .btn-text,.btn-submit.loading .arrow{display:none}
+.btn-submit .spin{display:none}
+.btn-submit.loading .spin{display:block;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ═══ RESULTS PANEL ═══ */
+.results-panel{position:sticky;top:78px}
+
+.placeholder{
+  background:var(--pure);border:2px dashed var(--fog);border-radius:var(--r);
+  padding:3rem 1.5rem;text-align:center;color:var(--muted);
+}
+.ph-icon{font-size:2.5rem;margin-bottom:1rem;opacity:0.35}
+.ph-text{font-size:14px;line-height:1.7;color:var(--muted)}
+
+/* ═══ RESULT CARD — SCORE ═══ */
+.score-card{
+  background:var(--ink);border-radius:var(--r);padding:1.75rem;
+  margin-bottom:1.25rem;text-align:center;
+}
+.score-label{font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--soft);margin-bottom:1rem}
+.score-main{
+  display:flex;align-items:baseline;justify-content:center;gap:6px;
+  margin-bottom:0.25rem;
+}
+.score-num{font-family:'Syne',sans-serif;font-size:3.5rem;font-weight:800;color:#fff;line-height:1}
+.score-unit{font-size:18px;color:var(--soft);font-weight:300}
+.score-ton{font-size:14px;color:var(--muted);margin-bottom:1.25rem}
+.score-ton span{color:var(--soft);font-weight:500}
+.rating-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 18px;border-radius:20px;
+  font-size:13px;font-weight:600;margin-bottom:1rem;
+}
+.score-msg{font-size:13px;color:var(--soft);line-height:1.6;max-width:260px;margin:0 auto}
+
+/* progress arc */
+.arc-wrap{display:flex;justify-content:center;margin-bottom:1.25rem}
+.arc-wrap svg{overflow:visible}
+
+/* ═══ BREAKDOWN ═══ */
+.breakdown-card{background:var(--pure);border:1px solid var(--fog);border-radius:var(--r);padding:1.25rem;margin-bottom:1.25rem}
+.bc-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:1rem}
+.bar-row{margin-bottom:11px}
+.bar-row:last-child{margin-bottom:0}
+.bar-meta{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+.bar-name{color:var(--steel);display:flex;align-items:center;gap:6px}
+.bar-pct{font-weight:600;color:var(--ink)}
+.bar-track{background:var(--fog);border-radius:4px;height:6px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width 1.1s ease}
+
+/* ═══ COMPARE ═══ */
+.compare-card{background:var(--pure);border:1px solid var(--fog);border-radius:var(--r);padding:1.25rem;margin-bottom:1.25rem}
+.cmp-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.cmp-row:last-child{margin-bottom:0}
+.cmp-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.cmp-name{font-size:13px;color:var(--steel);flex:1}
+.cmp-track{flex:2;background:var(--fog);border-radius:4px;height:5px;overflow:hidden}
+.cmp-fill{height:100%;border-radius:4px;transition:width 1.2s ease .2s}
+.cmp-val{font-size:13px;font-weight:500;color:var(--ink);min-width:52px;text-align:right}
+
+/* ═══ TIPS ═══ */
+.tips-card{background:var(--pure);border:1px solid var(--fog);border-radius:var(--r);padding:1.25rem}
+.tip-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--fog)}
+.tip-item:first-child{padding-top:0}
+.tip-item:last-child{border-bottom:none;padding-bottom:0}
+.tip-num{
+  width:22px;height:22px;border-radius:50%;background:var(--ink);
+  color:#fff;font-size:10px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;
+}
+.tip-text{font-size:13px;color:var(--steel);line-height:1.6}
+
+/* hidden / visible */
+.result-block{display:none}
+.result-block.on{display:block}
+.placeholder.off{display:none}
+
+/* ═══ FOOTER ═══ */
+footer{
+  background:var(--ink);text-align:center;padding:1.75rem;
+  color:var(--muted);font-size:12px;letter-spacing:0.02em;
+}
+footer a{color:var(--green);text-decoration:none}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <a class="logo" href="/">
+    <div class="logo-mark">🏭</div>
+    <span class="logo-name">Carbon<span>Lens</span></span>
+  </a>
+  <div class="header-right">
+    <span class="header-pill">🌿 Green Skills Project</span>
+    <span class="model-badge">Linear Regression Model</span>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="hero-tag">🏭 Industrial Emissions AI</div>
+      <h1>Predict your<br>industry's <span class="hl">carbon<br>footprint</span></h1>
+      <p class="hero-desc">Enter your operational parameters and our trained ML model will estimate annual CO₂ emissions — helping industries move toward net zero.</p>
+      <div class="hero-stats">
+        <div class="h-stat">
+          <div class="h-stat-n">500</div>
+          <div class="h-stat-l">Training samples</div>
+        </div>
+        <div class="h-stat">
+          <div class="h-stat-n">20.9t</div>
+          <div class="h-stat-l">Avg CO₂ in dataset</div>
+        </div>
+        <div class="h-stat">
+          <div class="h-stat-n">4</div>
+          <div class="h-stat-l">Input features</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hv-title">Dataset CO₂ distribution</div>
+      <div class="hv-bar"><span class="hv-label">Renewables</span><div class="hv-track"><div class="hv-fill" style="width:30%;background:#4caf7d"></div></div><span class="hv-val">~8k kg</span></div>
+      <div class="hv-bar"><span class="hv-label">Natural Gas</span><div class="hv-track"><div class="hv-fill" style="width:55%;background:#4a8fa8"></div></div><span class="hv-val">~18k kg</span></div>
+      <div class="hv-bar"><span class="hv-label">Diesel</span><div class="hv-track"><div class="hv-fill" style="width:75%;background:#c85a2a"></div></div><span class="hv-val">~28k kg</span></div>
+      <div class="hv-bar"><span class="hv-label">Coal</span><div class="hv-track"><div class="hv-fill" style="width:95%;background:#6b5b45"></div></div><span class="hv-val">~38k kg</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="layout">
+
+    <!-- LEFT: FORM -->
+    <div class="form-col">
+      <div class="sec-label">Input Parameters</div>
+      <div class="sec-title">Industry operational data</div>
+
+      <!-- Electricity -->
+      <div class="card">
+        <div class="card-head">
+          <div class="c-icon ci-amber">⚡</div>
+          <div>
+            <div class="c-title">Electricity Usage</div>
+            <div class="c-sub">Annual consumption in kWh</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Electricity Usage (kWh/year)</label>
+          <input type="number" id="electricity" placeholder="e.g. 25000" value="20000" min="0" max="50000" step="100"/>
+          <div style="font-size:12px;color:var(--muted);margin-top:5px">Dataset range: 1,161 – 49,984 kWh</div>
+        </div>
+      </div>
+
+      <!-- Fuel Type -->
+      <div class="card">
+        <div class="card-head">
+          <div class="c-icon ci-coral">🔥</div>
+          <div>
+            <div class="c-title">Fuel Type</div>
+            <div class="c-sub">Primary energy source used in operations</div>
+          </div>
+        </div>
+        <div class="field" style="margin:0">
+          <label style="margin-bottom:10px">Select fuel type</label>
+          <div class="fuel-grid">
+            <div class="fuel-pill fp-renew">
+              <input type="radio" name="fuel" id="f0" value="Renewables"/>
+              <label for="f0"><span class="fuel-dot"></span>Renewables</label>
+            </div>
+            <div class="fuel-pill fp-gas">
+              <input type="radio" name="fuel" id="f1" value="Natural Gas" checked/>
+              <label for="f1"><span class="fuel-dot"></span>Natural Gas</label>
+            </div>
+            <div class="fuel-pill fp-diesel">
+              <input type="radio" name="fuel" id="f2" value="Diesel"/>
+              <label for="f2"><span class="fuel-dot"></span>Diesel</label>
+            </div>
+            <div class="fuel-pill fp-coal">
+              <input type="radio" name="fuel" id="f3" value="Coal"/>
+              <label for="f3"><span class="fuel-dot"></span>Coal</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Production + Efficiency -->
+      <div class="card">
+        <div class="card-head">
+          <div class="c-icon ci-blue">🏗️</div>
+          <div>
+            <div class="c-title">Production & Efficiency</div>
+            <div class="c-sub">Output volume and operational efficiency</div>
+          </div>
+        </div>
+        <div class="input-row" style="margin-bottom:1rem">
+          <div class="field" style="margin:0">
+            <label>Production Volume (Tons/year)</label>
+            <input type="number" id="production" placeholder="e.g. 5000" value="5000" min="0" max="10000" step="50"/>
+            <div style="font-size:12px;color:var(--muted);margin-top:5px">Range: 55 – 9,995 tons</div>
+          </div>
+          <div></div>
+        </div>
+        <div class="field" style="margin:0">
+          <label>Efficiency Rating <span id="eff-display" style="color:var(--accent);font-weight:600">0.80</span></label>
+          <div class="slider-wrap">
+            <span style="font-size:12px;color:var(--muted)">0.50</span>
+            <input type="range" id="efficiency" min="0.5" max="1.0" step="0.01" value="0.80"
+              oninput="document.getElementById('eff-display').textContent=parseFloat(this.value).toFixed(2)"/>
+            <span style="font-size:12px;color:var(--muted)">1.00</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:5px">Higher = more efficient (less waste energy)</div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <button class="btn-submit" id="predictBtn" onclick="runPrediction()">
+        <span class="btn-text">Predict Carbon Footprint</span>
+        <span class="arrow">→</span>
+        <svg class="spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- RIGHT: RESULTS -->
+    <div class="results-panel">
+
+      <!-- Placeholder -->
+      <div class="placeholder" id="placeholder">
+        <div class="ph-icon">📊</div>
+        <div class="ph-text">Fill in your industry details on the left and click <strong>Predict</strong> to see your estimated carbon footprint and personalised recommendations.</div>
+      </div>
+
+      <!-- Score -->
+      <div class="result-block" id="scoreBlock">
+        <div class="score-card">
+          <div class="score-label">Estimated Annual CO₂ Emission</div>
+          <div class="arc-wrap">
+            <svg id="arcSvg" width="130" height="70" viewBox="0 0 130 70">
+              <path d="M 15 65 A 50 50 0 0 1 115 65" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="10" stroke-linecap="round"/>
+              <path id="arcFill" d="M 15 65 A 50 50 0 0 1 115 65" fill="none" stroke="#4caf7d" stroke-width="10" stroke-linecap="round"
+                stroke-dasharray="0 157" style="transition:stroke-dasharray 1s ease,stroke .5s"/>
+            </svg>
+          </div>
+          <div class="score-main">
+            <span class="score-num" id="scoreNum">—</span>
+            <span class="score-unit">kg</span>
+          </div>
+          <div class="score-ton" id="scoreTon"></div>
+          <div class="rating-badge" id="ratingBadge"></div>
+          <div class="score-msg" id="scoreMsg"></div>
+        </div>
+      </div>
+
+      <!-- Breakdown -->
+      <div class="result-block" id="breakdownBlock">
+        <div class="breakdown-card">
+          <div class="bc-title">Feature Contribution to Prediction</div>
+          <div id="breakdownBars"></div>
+        </div>
+      </div>
+
+      <!-- Comparison -->
+      <div class="result-block" id="compareBlock">
+        <div class="compare-card">
+          <div class="bc-title">Benchmark Comparison</div>
+          <div class="compare-items" id="compareItems"></div>
+        </div>
+      </div>
+
+      <!-- Tips -->
+      <div class="result-block" id="tipsBlock">
+        <div class="tips-card">
+          <div class="bc-title" style="margin-bottom:0.75rem">Reduction Recommendations</div>
+          <div id="tipsList"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  Built for Green Skills · AIML Project · Sustainable Energy & Efficiency &nbsp;|&nbsp;
+  Model: <a href="#">Linear Regression</a> · Trained on 500 industrial samples
+</footer>
+
+<script>
+const BAR_COLORS = {
+  "Electricity": "#5b7fea",
+  "Fuel Type":   "#c85a2a",
+  "Production":  "#4a8fa8",
+  "Efficiency":  "#4caf7d",
+};
+
+async function runPrediction() {
+  const btn = document.getElementById('predictBtn');
+  btn.classList.add('loading');
+
+  const electricity = parseFloat(document.getElementById('electricity').value) || 0;
+  const production  = parseFloat(document.getElementById('production').value)  || 0;
+  const efficiency  = parseFloat(document.getElementById('efficiency').value)  || 0.8;
+  const fuel_type   = document.querySelector('input[name="fuel"]:checked').value;
+
+  try {
+    const res = await fetch('/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ electricity, fuel_type, production, efficiency })
+    });
+    const data = await res.json();
+
+    if (!data.success) throw new Error(data.error);
+
+    showResults(data);
+  } catch (err) {
+    alert('Prediction error: ' + err.message);
+  } finally {
+    btn.classList.remove('loading');
+  }
+}
+
+function showResults(d) {
+  // Hide placeholder, show blocks
+  document.getElementById('placeholder').classList.add('off');
+  ['scoreBlock','breakdownBlock','compareBlock','tipsBlock'].forEach(id => {
+    document.getElementById(id).classList.add('on');
+  });
+
+  // Score
+  const kg  = d.prediction_kg;
+  const ton = d.prediction_ton;
+  animateNum('scoreNum', 0, kg, 1200, v => Math.round(v).toLocaleString());
+  document.getElementById('scoreTon').innerHTML = `≈ <span>${ton}</span> tonnes CO₂ / year`;
+
+  // Rating badge
+  const rb = document.getElementById('ratingBadge');
+  rb.textContent = d.rating.level;
+  rb.style.background = d.rating.bg;
+  rb.style.color = d.rating.color;
+
+  document.getElementById('scoreMsg').textContent = d.rating.desc;
+
+  // Arc gauge (0–44513 mapped to 0–157 dasharray)
+  const maxKg = 44513;
+  const arcLen = Math.min((kg / maxKg) * 157, 157);
+  const arcEl = document.getElementById('arcFill');
+  setTimeout(() => {
+    arcEl.setAttribute('stroke-dasharray', arcLen + ' 157');
+    arcEl.setAttribute('stroke', d.rating.color);
+  }, 100);
+
+  // Breakdown bars
+  const bbHtml = Object.entries(d.breakdown).map(([name, pct]) => `
+    <div class="bar-row">
+      <div class="bar-meta">
+        <span class="bar-name"><span style="width:8px;height:8px;border-radius:50%;background:${BAR_COLORS[name]};display:inline-block"></span>${name}</span>
+        <span class="bar-pct">${pct}%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:0%;background:${BAR_COLORS[name]}" data-w="${pct}"></div></div>
+    </div>
+  `).join('');
+  document.getElementById('breakdownBars').innerHTML = bbHtml;
+  setTimeout(() => {
+    document.querySelectorAll('.bar-fill').forEach(el => {
+      el.style.width = el.dataset.w + '%';
+    });
+  }, 150);
+
+  // Comparison
+  const maxCmp = Math.max(kg, d.dataset_avg_kg, 44513) * 1.05;
+  const items = [
+    { label: 'Your prediction', val: kg, color: d.rating.color },
+    { label: 'Dataset average', val: d.dataset_avg_kg, color: '#5b7fea' },
+    { label: 'Dataset max', val: 44513, color: '#e0e0e0' },
+  ];
+  document.getElementById('compareItems').innerHTML = items.map(it => `
+    <div class="cmp-row">
+      <div class="cmp-dot" style="background:${it.color}"></div>
+      <div class="cmp-name">${it.label}</div>
+      <div class="cmp-track"><div class="cmp-fill" style="width:0%;background:${it.color}" data-w="${(it.val/maxCmp*100).toFixed(1)}"></div></div>
+      <div class="cmp-val">${Math.round(it.val/1000*10)/10}t</div>
+    </div>
+  `).join('');
+  setTimeout(() => {
+    document.querySelectorAll('.cmp-fill').forEach(el => {
+      el.style.width = el.dataset.w + '%';
+    });
+  }, 200);
+
+  // Tips
+  document.getElementById('tipsList').innerHTML = d.tips.map((t, i) => `
+    <div class="tip-item">
+      <div class="tip-num">${i+1}</div>
+      <div class="tip-text">${t}</div>
+    </div>
+  `).join('');
+}
+
+function animateNum(id, from, to, dur, fmt) {
+  const el = document.getElementById(id);
+  const start = performance.now();
+  function step(now) {
+    const p = Math.min((now - start) / dur, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.textContent = fmt(from + (to - from) * ease);
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+</script>
+</body>
+</html>
