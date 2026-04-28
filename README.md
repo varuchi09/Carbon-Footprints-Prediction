@@ -1,1 +1,1 @@
-This is AIML project for Green Skills under sustainable energy and efficiency.
+This is AI and Data analytis project focused on Green Skills (sustainable energy and efficiency) organised by AICTE and Edunet Foundations under Skills4Future program.
